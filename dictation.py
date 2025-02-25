@@ -19,6 +19,10 @@ from ctypes import wintypes
 import sys
 import pystray
 from PIL import Image, ImageDraw
+import warnings
+
+# Suppress specific warnings
+warnings.filterwarnings("ignore", message="FP16 is not supported on CPU; using FP32 instead")
 
 # ============= Constants and Globals =============
 
@@ -482,6 +486,9 @@ class RecordingIndicator:
         
         # Schedule regular updates
         self.update()
+        
+        # Start with window hidden
+        self.root.withdraw()
     
     def create_tray_icon(self):
         """Create a system tray icon."""
@@ -525,12 +532,17 @@ class RecordingIndicator:
     
     def exit_app(self, icon=None, item=None):
         """Exit the application."""
-        self.stop_recording()
-        self.unhook_keyboard()
-        if icon:
-            icon.stop()
-        self.root.destroy()
-        sys.exit(0)
+        try:
+            self.stop_recording()
+            self.unhook_keyboard()
+            if icon:
+                icon.stop()
+            self.root.quit()
+            self.root.destroy()
+            os._exit(0)  # Force terminate the process
+        except Exception as e:
+            print(f"Error during exit: {e}")
+            os._exit(1)  # Force terminate even if there was an error
     
     def on_model_change(self, event):
         """Handle model selection change."""
@@ -588,6 +600,14 @@ class RecordingIndicator:
     def update(self):
         """Regular update to keep the window responsive."""
         self.root.after(100, self.update)
+    
+    def unhook_keyboard(self):
+        """Remove the keyboard hook when exiting."""
+        remove_keyboard_hook()
+        
+    def stop_recording(self):
+        """Stop the recording process by calling the global stop_recording function."""
+        stop_recording()
 
 # ============= Main Function =============
 
