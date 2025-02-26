@@ -21,6 +21,41 @@ import pystray
 from PIL import Image, ImageDraw
 import warnings
 
+# Hide console window when run from file explorer
+if sys.executable.endswith('pythonw.exe') or (hasattr(sys, 'frozen') and sys.frozen):
+    # Already hidden or frozen (e.g., PyInstaller)
+    pass
+else:
+    # Check if script is run directly (not from terminal)
+    try:
+        # This will fail if run from a terminal
+        kernel32 = ctypes.WinDLL('kernel32')
+        user32 = ctypes.WinDLL('user32')
+        
+        # Get the console window handle
+        hwnd = kernel32.GetConsoleWindow()
+        
+        # Check if we have a console window
+        if hwnd != 0:
+            # Check if run from explorer (no parent console process)
+            parent_pid = None
+            try:
+                # This is a simple heuristic - if we can get the parent process ID
+                # and it's a cmd.exe or powershell.exe, we're likely in a terminal
+                import psutil
+                parent_pid = psutil.Process(os.getpid()).parent().name().lower()
+                is_terminal = any(term in parent_pid for term in ['cmd.exe', 'powershell.exe', 'pwsh.exe', 'python.exe'])
+                
+                # Hide console only if not run from terminal
+                if not is_terminal:
+                    user32.ShowWindow(hwnd, 0)  # SW_HIDE = 0
+            except (ImportError, psutil.NoSuchProcess, AttributeError):
+                # If we can't determine, default to hiding the console
+                user32.ShowWindow(hwnd, 0)  # SW_HIDE = 0
+    except Exception:
+        # If anything fails, continue with console visible
+        pass
+
 # Suppress specific warnings
 warnings.filterwarnings("ignore", message="FP16 is not supported on CPU; using FP32 instead")
 

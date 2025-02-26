@@ -1,0 +1,20 @@
+{
+    "model": "tiny",
+    "language": "en",
+    "hotkey": {
+        "ctrl": true,
+        "shift": true,
+        "key": "d"
+    },
+    "audio": {
+        "chunk": 1024,
+        "format": "paInt16",
+        "channels": 1,
+        "rate": 16000
+    },
+    "ui": {
+        "indicator_size": 12,
+        "indicator_color": "red",
+        "transparency": 0.7
+    }
+}
