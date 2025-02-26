@@ -182,11 +182,17 @@ The application can be configured by editing the `config.json` file which is aut
 - Fallback to tiny model if requested model fails to load
 
 ## Dependencies
-- whisper: OpenAI's speech recognition model
-- pyaudio: Audio recording and playback
-- keyboard: Global hotkey management
-- numpy: Audio data processing
-- tkinter: Visual indicator interface
+- openai-whisper
+- pyaudio
+- keyboard
+- pyperclip
+- pystray
+- pillow
+- torch
+- torchaudio
+- numpy
+- imageio-ffmpeg
+- psutil
 
 ## Project Structure
 ```
